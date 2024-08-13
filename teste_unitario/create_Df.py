@@ -28,7 +28,10 @@ schema = StructType([
     StructField('Atua', TimestampType(), True)
 ])
 df = spark.createDataFrame(data, schema)
-df.show()
 
-df = df.withColumn('anomesdia', F.coalesce(df.Atua, df.Cria))
-df.show()
+df = df.withColumn('data', F.coalesce(df.Atua, df.Cria)) \
+       .withColumn('anomesdia', F.date_format(F.col('data'), 'yyyyMMdd')) \
+       .withColumn('anomes', F.date_format(F.col('data'), 'yyyyMM')) \
+       .withColumn('ano', F.date_format(F.col('data'), 'yyyy')) \
+       .drop('data')
+df.show()                                                                                            
