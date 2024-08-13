@@ -1,8 +1,10 @@
+from datetime import datetime
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructField, StringType, StructType
-
+from pyspark.sql.types import StructField, StringType, StructType, TimestampType
+from pyspark.sql import functions as F
 
 spark = SparkSession.builder.getOrCreate()
+sc = spark.sparkContext
 
 # data = [('James', '45'), ('Naiara', '36'), ('Pedro', '30')]
 # schema = StructType([
@@ -10,26 +12,23 @@ spark = SparkSession.builder.getOrCreate()
 #     StructField('_c1', StringType(), True)
 # ])
 # df = spark.createDataFrame(data, schema)
+# df.show()
 
-# df = spark.createDataFrame(
-#     [
-#         (1, "foo"),  # create your data here, be consistent in the types.
-#         (2, "bar"),
-#     ],
-#     ["id", "label"]  # add your column names here
-# )
 
-# data = [{"_c0": 'c1 | c2 | c3'},
-#         {"_c0": 'col1 | col2 | col3'}, 
-#         {"_c0": 'cl1 | cl2 | cl3'}
-#         ]
+# data = [("A bola 312-31831 nao sei A"), ("A bola 312-31831 nao sei A")]
+# schema = StructType([StructField('value', StringType(), True)])
+# df = spark.createDataFrame(data, StringType())
+# df.show()
 
-data = [{"c0": 'linha1', 
-         'c1': '2022-02-01'}]
 
-# data = [{"c0": ['linha1','linha2','linha3'], 
-#          'c1': ['linha1','linha2','linha3']}]
+data = [('James', datetime(2020,2,2,23,0,0), None), ('Naiara', datetime(2022,2,2,23,0,0), datetime(2024,1,1,23,0,0)), ('Pedro', None, datetime(2021,1,1,23,0,0))]
+schema = StructType([
+    StructField('Nome', StringType(), True),
+    StructField('Cria', TimestampType(), True),
+    StructField('Atua', TimestampType(), True)
+])
+df = spark.createDataFrame(data, schema)
+df.show()
 
-df = spark.createDataFrame(data, [StringType(),StringType()])
-
+df = df.withColumn('anomesdia', F.coalesce(df.Atua, df.Cria))
 df.show()
